@@ -9,22 +9,23 @@
 struct Patient {
     int age;
     int cholesterol;
-    int max_heart_rate;
+    int NhipTim;
     int diagnosis; // 0: không mắc bệnh, 1: mắc bệnh tim
 };
 
-double euclideanDistance(const Patient& p1, const Patient& p2) {
+double KhoangCachEuclidean(const Patient& p1, const Patient& p2) {
     double d_age = p1.age - p2.age;
     double d_cholesterol = p1.cholesterol - p2.cholesterol;
-    double d_max_heart_rate = p1.max_heart_rate - p2.max_heart_rate;
-    return sqrt(d_age * d_age + d_cholesterol * d_cholesterol + d_max_heart_rate * d_max_heart_rate);
+    double d_NhipTim = p1.NhipTim - p2.NhipTim;
+    return sqrt(d_age * d_age + d_cholesterol * d_cholesterol + d_NhipTim * d_NhipTim);
 }
 
-int predictKNN(const std::vector<Patient>& patients, const Patient& newPatient, int k) {
-    std::vector<std::pair<double, int>> distancesAndDiagnosis;
+int DuDoanKNN(const std::vector<Patient>& patients, const Patient& newPatient, int k) {
+    std::vector<std::pair<double, int> > distancesAndDiagnosis;
 
-    for (const Patient& patient : patients) {
-        double distance = euclideanDistance(newPatient, patient);
+    for (std::vector<Patient>::const_iterator it = patients.begin(); it != patients.end(); ++it) {
+    	const Patient& patient = *it;
+        double distance = KhoangCachEuclidean(newPatient, patient);
         distancesAndDiagnosis.push_back({distance, patient.diagnosis});
     }
 
@@ -41,14 +42,14 @@ int predictKNN(const std::vector<Patient>& patients, const Patient& newPatient, 
 
 int main() {
     std::vector<Patient> patients;
-    std::ifstream dataFile("heart_disease_data.csv");
+    std::ifstream dataFile("heart_disease_data.txt");
 
     if (dataFile.is_open()) {
         std::string line;
         while (std::getline(dataFile, line)) {
             std::istringstream ss(line);
             Patient patient;
-            ss >> patient.age >> patient.cholesterol >> patient.max_heart_rate >> patient.diagnosis;
+            ss >> patient.age >> patient.cholesterol >> patient.NhipTim >> patient.diagnosis;
             patients.push_back(patient);
         }
         dataFile.close();
@@ -57,15 +58,15 @@ int main() {
         return 1;
     }
 
-    Patient newPatient = {45, 210, 150, 0}; // Chèn các giá trị của bệnh nhân mới cần chẩn đoán
+    Patient newPatient = {45, 210, 150, 0}; // chèn các giá trị của bệnh nhân mới cần chẩn đoán
 
     int k = 3;
-    int predictedDiagnosis = predictKNN(patients, newPatient, k);
+    int predictedDiagnosis = DuDoanKNN(patients, newPatient, k);
 
     if (predictedDiagnosis == 0) {
-        std::cout << "Bệnh nhân không mắc bệnh tim." << std::endl;
+        std::cout << "Benh nhan khong mac banh tim." << std::endl;
     } else {
-        std::cout << "Bệnh nhân mắc bệnh tim." << std::endl;
+        std::cout << "Benh nhan mac benh tim." << std::endl;
     }
 
     return 0;
